@@ -7,7 +7,8 @@ public class ReactPage {
 
     public By todoSearchBox = By.className("new-todo");
     public By todoLocator = By.xpath("/html/body/section/div/section/ul/li/div/label");
-    public By newlyCreatedTodo = By.xpath("/html/body/section/div/section/ul/li/div/label");
+    public String newTodoListValue = "/html/body/section/div/section/ul/li[1]/div/label";
+    public By newlyCreatedTodo = By.xpath(newTodoListValue);
     public By firstTodo = By.xpath("/html/body/section/div/section/ul/li[1]/div/label");
     public By secondTodo = By.xpath("/html/body/section/div/section/ul/li[2]/div/label");
     public By destroyTodoButton = By.xpath("/html/body/section/div/section/ul/li/div/button");

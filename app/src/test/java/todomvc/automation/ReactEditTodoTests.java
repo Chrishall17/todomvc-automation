@@ -1,5 +1,6 @@
 package todomvc.automation;
 
+import com.google.gson.Gson;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -7,9 +8,12 @@ import org.junit.jupiter.api.Test;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.html5.LocalStorage;
+import org.openqa.selenium.html5.WebStorage;
 import org.openqa.selenium.interactions.Actions;
 
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -232,10 +236,10 @@ public class ReactEditTodoTests {
         for (int i = 1; i < 20; i++ ) {
             page.createTodoTemplate();
             if (i == 1) {
-                WebElement todoItem = driver.findElement(By.xpath("/html/body/section/div/section/ul/li[1]/div/label"));
+                WebElement todoItem = driver.findElement(page.firstTodo);
                 assertEquals("Test Todo", todoItem.getText());
             } else {
-                WebElement todoItem = driver.findElement(By.xpath("/html/body/section/div/section/ul/li[" + i + "]/div/label"));
+                WebElement todoItem = driver.findElement(By.xpath(page.newTodoListValue.replace("[1]", "["+i+"]")));
                 assertEquals("Test Todo", todoItem.getText());
             }
         }
@@ -264,6 +268,38 @@ public class ReactEditTodoTests {
         page.navigateReact();
         WebElement todoItem = driver.findElement(page.firstTodo);
         assertEquals("Test Todo", todoItem.getText());
+    }
+
+    @Test
+    public void testReactLocalStorageContainsMethod() {
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
+        ReactPage page = new ReactPage(driver);
+        page.createTodoTemplate();
+        WebElement todoItem = driver.findElement(page.firstTodo);
+        LocalStorage local = ((WebStorage) driver).getLocalStorage();
+        String JSONData = local.getItem("react-todos");
+        assertTrue(JSONData.contains("\"title\":\"Test Todo\""));
+        assertTrue(JSONData.contains("\"completed\":false"));
+    }
+
+    @Test
+    public void testReactLocalStorageHashMapMethod() {
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
+        ReactPage page = new ReactPage(driver);
+        page.createTodoTemplate();
+        // Get React Todos From Local Storage
+        LocalStorage local = ((WebStorage) driver).getLocalStorage();
+        String reactTodos = local.getItem("react-todos");
+        // Get rid of the Brackets from Array
+        String extractedString = reactTodos.substring(1, reactTodos.length() - 1);
+        // use Gson to Parse the String into a Hashmap
+        Gson parser= new Gson();
+        HashMap<String, Object> reactMap= parser.fromJson(extractedString, HashMap.class);
+        // Step 3: Access the hashmap
+        String id = reactMap.get("id").toString();
+        String title = reactMap.get("title").toString();
+        String completed = reactMap.get("completed").toString();
+        assertEquals("Test Todo", title);
     }
 
     @AfterEach
