@@ -12,8 +12,7 @@ import org.openqa.selenium.interactions.Actions;
 import java.time.Duration;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.*;
 
 public class ReactEditTodoTests {
     private static WebDriver driver;
@@ -145,6 +144,126 @@ public class ReactEditTodoTests {
         completedTab.click();
         WebElement secondTodo = driver.findElement(page.newlyCreatedTodo);
         assertEquals("Test Todo", secondTodo.getText());
+    }
+
+    @Test
+    void clearCompletedAppearsWhenTodoMarkedAsComplete() throws InterruptedException {
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
+        ReactPage page = new ReactPage(driver);
+        page.createTodoTemplate();
+        WebElement toggleComplete = driver.findElement(page.toggleTodoCompleteButton);
+        toggleComplete.click();
+        WebElement clearCompletedLink = driver.findElement(page.clearCompleted);
+        assertTrue(clearCompletedLink.isDisplayed());
+
+    }
+
+    @Test
+    void clearCompletedClearsOneTodoWhichIsMarkedComplete() throws InterruptedException {
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
+        ReactPage page = new ReactPage(driver);
+        page.createTodoTemplate();
+        WebElement toggleComplete = driver.findElement(page.toggleTodoCompleteButton);
+        toggleComplete.click();
+        WebElement clearCompletedLink = driver.findElement(page.clearCompleted);
+        clearCompletedLink.click();
+        assertThrows(NoSuchElementException.class, () ->{
+
+            WebElement updatedToDo = driver.findElement(page.newlyCreatedTodo);
+
+        });
+    }
+
+    @Test
+    void clearCompletedOnlyClearsTodosMarkedComplete() throws InterruptedException {
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
+        ReactPage page = new ReactPage(driver);
+        page.createTodoTemplate();
+        page.createTodoTemplate();
+        WebElement toggleComplete = driver.findElement(page.toggleTodoCompleteButton);
+        toggleComplete.click();
+        WebElement clearCompletedLink = driver.findElement(page.clearCompleted);
+        clearCompletedLink.click();
+        WebElement createdTodo = driver.findElement(page.newlyCreatedTodo);
+        assertEquals("Test Todo",createdTodo.getText());
+    }
+
+    @Test
+    void arrowSymbolClickedOnceMarksAllTodosComplete() throws InterruptedException {
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
+        ReactPage page = new ReactPage(driver);
+        page.createTodoTemplate();
+        page.createTodoTemplate();
+        WebElement toggleAllComplete = driver.findElement(page.arrowToggle);
+        toggleAllComplete.click();
+        WebElement firstTodo = driver.findElement(page.firstTodo);
+        WebElement secondTodo = driver.findElement(page.secondTodo);
+        String firstTodoCSSValue = firstTodo.getCssValue("text-decoration-line");
+        assertEquals("line-through", firstTodoCSSValue);
+        String secondTodoCSSValue = secondTodo.getCssValue("text-decoration-line");
+        assertEquals("line-through", secondTodoCSSValue);
+    }
+
+    @Test
+    void arrowSymbolClickedTwiceMarksAllTodosCompleteThenIncomplete() throws InterruptedException {
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
+        ReactPage page = new ReactPage(driver);
+        page.createTodoTemplate();
+        page.createTodoTemplate();
+        WebElement toggleAllComplete = driver.findElement(page.arrowToggle);
+        toggleAllComplete.click();
+        WebElement firstTodo = driver.findElement(page.firstTodo);
+        WebElement secondTodo = driver.findElement(page.secondTodo);
+        String firstTodoInitialCSSValue = firstTodo.getCssValue("text-decoration-line");
+        String secondTodoInitialCSSValue = secondTodo.getCssValue("text-decoration-line");
+        assertEquals("line-through", firstTodoInitialCSSValue);
+        assertEquals("line-through", secondTodoInitialCSSValue);
+        toggleAllComplete.click();
+        String firstTodoAfterCSSValue = firstTodo.getCssValue("text-decoration-line");
+        String secondTodoAfterCSSValue = secondTodo.getCssValue("text-decoration-line");
+        assertEquals("none", firstTodoAfterCSSValue);
+        assertEquals("none", secondTodoAfterCSSValue);
+    }
+
+    @Test
+    public void reactMaintainsXNumberOfTodos() {
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
+        ReactPage page = new ReactPage(driver);
+        for (int i = 1; i < 20; i++ ) {
+            page.createTodoTemplate();
+            if (i == 1) {
+                WebElement todoItem = driver.findElement(By.xpath("/html/body/section/div/section/ul/li[1]/div/label"));
+                assertEquals("Test Todo", todoItem.getText());
+            } else {
+                WebElement todoItem = driver.findElement(By.xpath("/html/body/section/div/section/ul/li[" + i + "]/div/label"));
+                assertEquals("Test Todo", todoItem.getText());
+            }
+        }
+    }
+
+    @Test
+    public void addingTodoInReactDoesNotBleedOverToBackbone(){
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
+        ReactPage page = new ReactPage(driver);
+        page.createTodoTemplate();
+        page.createTodoTemplate();
+        BackbonePage page2 = new BackbonePage(driver);
+        page2.navigateBackbone();
+        assertThrows(NoSuchElementException.class, () ->{
+
+            WebElement updatedToDo = driver.findElement(page2.newlyCreatedTodo);
+
+        });
+    }
+
+    @Test
+    public void refreshingPageDoesNotClearTodo() {
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
+        ReactPage page = new ReactPage(driver);
+        page.createTodoTemplate();
+        page.navigateReact();
+        WebElement todoItem = driver.findElement(page.firstTodo);
+        assertEquals("Test Todo", todoItem.getText());
     }
 
     @AfterEach

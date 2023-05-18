@@ -10,6 +10,8 @@ import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.time.Duration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class checkPageTitleTest {
     private static WebDriver driver;
     @BeforeAll
@@ -23,6 +25,8 @@ public class checkPageTitleTest {
     void assertPageTitleTodo() {
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
         driver.get("https://todomvc.com");
+        String todoTitle = driver.getTitle();
+        assertEquals("TodoMVC", todoTitle);
     }
 
 
