@@ -231,18 +231,36 @@ public class ReactEditTodoTestsChrome {
         assertEquals("none", secondTodoAfterCSSValue);
     }
 
+//    @Test
+//    public void reactMaintainsXNumberOfTodos() {
+//        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
+//        ReactPage page = new ReactPage(driver);
+//        for (int i = 1; i < 20; i++ ) {
+//            page.createTodoTemplate();
+//            if (i == 1) {
+//                WebElement todoItem = driver.findElement(page.firstTodo);
+//                assertEquals("Test To-do", todoItem.getText());
+//            } else {
+//                WebElement todoItem = driver.findElement(By.xpath(page.newTodoListValue.replace("[1]", "["+i+"]")));
+//                assertEquals("Test To-do", todoItem.getText());
+//            }
+//        }
+//    }
+
     @Test
-    public void reactMaintainsXNumberOfTodos() {
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
+    public void numberOfTodosIsMaintained() {
+
+        // Create 20 Unique To-Dos and verify that each element is present and contains the correct input
         ReactPage page = new ReactPage(driver);
         for (int i = 1; i < 20; i++ ) {
-            page.createTodoTemplate();
+            page.createToDoWithGivenString("Test Input "+i);
             if (i == 1) {
-                WebElement todoItem = driver.findElement(page.firstTodo);
-                assertEquals("Test Todo", todoItem.getText());
+                WebElement todoItem = driver.findElement(page.newlyCreatedTodo);
+                assertEquals("Test Input 1", todoItem.getText());
             } else {
-                WebElement todoItem = driver.findElement(By.xpath(page.newTodoListValue.replace("[1]", "["+i+"]")));
-                assertEquals("Test Todo", todoItem.getText());
+                WebElement todoItem = driver.findElement(
+                        By.xpath(page.newTodoListValue.replace("[1]", "["+i+"]")));
+                assertEquals("Test Input "+i, todoItem.getText());
             }
         }
     }
