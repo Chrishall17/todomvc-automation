@@ -249,7 +249,7 @@ public class ReactEditTodoTestsChrome {
 
     @Test
     public void numberOfTodosIsMaintained() {
-
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
         // Create 20 Unique To-Dos and verify that each element is present and contains the correct input
         ReactPage page = new ReactPage(driver);
         for (int i = 1; i < 20; i++ ) {
