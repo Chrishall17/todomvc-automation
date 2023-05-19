@@ -2,6 +2,8 @@ package todomvc.automation;
 
 import com.google.gson.Gson;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -300,6 +302,51 @@ public class ReactEditTodoTests {
         String title = reactMap.get("title").toString();
         String completed = reactMap.get("completed").toString();
         assertEquals("Test Todo", title);
+    }
+
+    @Test
+    public void jsonStructureIsAsSpecified(){
+
+        // Create Template To-do and another To-do with the text "hello"
+        ReactPage page = new ReactPage(driver);
+        page.createTodoTemplate();
+        page.createToDoWithGivenString("hello");
+
+        // Complete One "Test Input" to-do
+        WebElement toggleComplete = driver.findElement(page.toggleTodoCompleteButton);
+        toggleComplete.click();
+
+        // Get React Todos Array of Jsons From Local Storage
+        LocalStorage local = ((WebStorage) driver).getLocalStorage();
+        String reactTodos = local.getItem("react-todos");
+
+        // Create an Array of Jsons (One for Each To-do)
+        JSONArray todosArray = new JSONArray(reactTodos);
+
+        // Get Individual Jsons from the Array
+        JSONObject todoOne = todosArray.getJSONObject(0);
+        JSONObject todoTwo = todosArray.getJSONObject(1);
+
+        // Store the Values of Keys from the respective Jsons
+        String todoOneTitle = todoOne.get("title").toString();
+        String todoOneId = todoOne.get("id").toString();
+        String todoOneCompleted = todoOne.get("completed").toString();
+        String todoTwoTitle = todoTwo.get("title").toString();
+        String todoTwoId = todoTwo.get("id").toString();
+        String todoTwoCompleted = todoTwo.get("completed").toString();
+
+        // Assert that the inputs are correct under key title
+        assertEquals("Test Input", todoOneTitle);
+        assertEquals("hello", todoTwoTitle);
+
+        // Assert that the correct to-dos are completed and not completed respectively
+        assertEquals("true", todoOneCompleted);
+        assertEquals("false", todoTwoCompleted);
+
+        // Assert that the IDs are unique from one another
+        assertNotEquals(todoOneId, todoTwoId);
+
+        // UPDATE SELENIUM NOTES / JAVA NOTES & CHEATSHEETS
     }
 
     @AfterEach
