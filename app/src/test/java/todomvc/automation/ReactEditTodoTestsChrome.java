@@ -20,7 +20,7 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
-public class ReactEditTodoTests {
+public class ReactEditTodoTestsChrome {
     private static WebDriver driver;
     public Actions act;
     @BeforeEach
@@ -336,7 +336,7 @@ public class ReactEditTodoTests {
         String todoTwoCompleted = todoTwo.get("completed").toString();
 
         // Assert that the inputs are correct under key title
-        assertEquals("Test Input", todoOneTitle);
+        assertEquals("Test Todo", todoOneTitle);
         assertEquals("hello", todoTwoTitle);
 
         // Assert that the correct to-dos are completed and not completed respectively

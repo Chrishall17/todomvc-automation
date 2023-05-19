@@ -14,7 +14,7 @@ import java.time.Duration;
 
 import static org.junit.Assert.assertEquals;
 
-public class ReactCreateTodoTests {
+public class ReactCreateTodoTestsChrome {
     private static WebDriver driver;
     @BeforeEach
     public void launchDriver() {
